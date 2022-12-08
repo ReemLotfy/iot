@@ -25,23 +25,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
 </script>
     <script>
-        let response = [{
-            "created_at":"2022-11-30T10:32:16.777795Z",
-            "device_fqbn":"esp8266:esp8266:nodemcuv2",
-            "device_id":"2c6054ca-5bf1-44a9-bcf8-0ea58af14971",
-            "device_name":"salwa","device_type":"login_and_secretkey_wifi",
-            "href":"/iot/v1/things/2cb890bf-1534-4f34-91b0-fc2c801a4be8",
-            "id":"2cb890bf-1534-4f34-91b0-fc2c801a4be8","name":"Temperature and soil moisture","organization_id":"236f0be7-12cf-48ff-a035-1f94a511c37d",
-            "properties":[{
-                "created_at":"2022-11-30T10:33:29.388008Z","href":"/iot/v1/things/2cb890bf-1534-4f34-91b0-fc2c801a4be8/properties/74a7e36b-71d6-4bcd-944c-f20bf6521286","id":"74a7e36b-71d6-4bcd-944c-f20bf6521286","last_value":24,"name":"Soil_moisture","permission":"READ_ONLY","persist":true,"tag":2,"thing_id":"2cb890bf-1534-4f34-91b0-fc2c801a4be8","type":"FLOAT","update_parameter":300,"update_strategy":"TIMED","updated_at":"2022-12-06T08:45:46.449405Z","value_updated_at":"2022-12-06T09:28:13.755Z","variable_name":"soil_moisture"},
-                {"created_at":"2022-11-30T10:33:01.247785Z","href":"/iot/v1/things/2cb890bf-1534-4f34-91b0-fc2c801a4be8/properties/686d8e82-d906-40d6-9aa2-f69ff0aa689a","id":"686d8e82-d906-40d6-9aa2-f69ff0aa689a","last_value":21.9375,"name":"Temperature","permission":"READ_ONLY","persist":true,"tag":1,"thing_id":"2cb890bf-1534-4f34-91b0-fc2c801a4be8","type":"FLOAT","update_parameter":0,"update_strategy":"ON_CHANGE","updated_at":"2022-11-30T10:33:01.247785Z","value_updated_at":"2022-12-06T09:35:00.001Z","variable_name":"temperature"}],"properties_count":2,"sketch_id":"711bc805-8165-4555-a6a9-0965a557a701","timezone":"Africa/Cairo","updated_at":"2022-12-06T09:35:06.626889Z","user_id":"bdb4deb6-c279-47cb-a1a4-0f6adadcbb61","webhook_active":false},{"created_at":"2022-12-06T09:31:30.734866Z","href":"/iot/v1/things/671e4f1a-ee4c-40d5-b4b2-08a706ea704a","id":"671e4f1a-ee4c-40d5-b4b2-08a706ea704a","name":"Untitled","organization_id":"236f0be7-12cf-48ff-a035-1f94a511c37d","properties_count":0,"sketch_id":"9eeeb256-965c-4b83-9265-e2b8063e27f1","timezone":"Africa/Cairo","updated_at":"2022-12-06T09:31:30.734866Z","user_id":"bdb4deb6-c279-47cb-a1a4-0f6adadcbb61","webhook_active":false
-            }]
+        var myHeaders = new Headers();
+        myHeaders.append("content-type", "application/x-www-form-urlencoded");
+        myHeaders.append("accept", "application/json");
+        myHeaders.append("access-control-allow-origin", "*")
+        var urlencoded = new URLSearchParams();
+        urlencoded.append("grant_type", "client_credentials");
+        urlencoded.append("client_id", "PamtknEGL2pl6pnGfldmSZRW7uhVPUYM");
+        urlencoded.append("client_secret", "6qmJEqKyc4gVCePQI2aF5SBEBGTom0qQ97uvf6c9FztvAp914EJ1xG6WEUyGE9UP");
+        urlencoded.append("audience", "https://api2.arduino.cc/iot");
 
-        document.getElementById("thing-1").innerHTML = response[0]["properties"][0]["name"];
-        document.getElementById("thing-1-value").innerHTML = response[0]["properties"][0]["last_value"];
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: urlencoded,
+            // redirect: 'follow'
+        };
 
-        document.getElementById("thing-2").innerHTML = response[0]["properties"][1]["name"];
-        document.getElementById("thing-2-value").innerHTML = response[0]["properties"][1]["last_value"];
+        fetch("https://api2.arduino.cc/iot/v1/clients/token", requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            let token = 'Bearer ' + result.access_token;
+
+            var requestOptions = {
+                method: 'GET',
+                headers: {"Authorization": token},
+            };
+
+            fetch("https://api2.arduino.cc/iot/v2/things?show_properties=true", requestOptions)
+                .then(response => {
+                    const things_response = response.json();
+                    document.getElementById("thing-1").innerHTML = things_response[0]["properties"][0]["name"];
+                    document.getElementById("thing-1-value").innerHTML = things_response[0]["properties"][0]["last_value"];
+
+                    document.getElementById("thing-2").innerHTML = things_response[0]["properties"][1]["name"];
+                    document.getElementById("thing-2-value").innerHTML = things_response[0]["properties"][1]["last_value"];
+                })
+                .catch(error => console.log('error', error));
+        })
+        .catch(error => console.log('error', error));
+
+
         let chartOneData = {"data":[{"time":"2022-12-07T07:06:21Z","value":100},{"time":"2022-12-07T07:13:36Z","value":100},{"time":"2022-12-07T07:20:51Z","value":100},{"time":"2022-12-07T07:36:48Z","value":0},{"time":"2022-12-07T07:39:42Z","value":0},{"time":"2022-12-07T07:45:30Z","value":61.97458267211914},{"time":"2022-12-07T07:46:57Z","value":62.26783828735351},{"time":"2022-12-07T07:52:45Z","value":62.61373167771559},{"time":"2022-12-07T07:54:12Z","value":72.14076251983643},{"time":"2022-12-07T07:55:39Z","value":70.00884501139323},{"time":"2022-12-07T07:57:06Z","value":68.20897335476346},{"time":"2022-12-07T07:58:33Z","value":67.5048828125},{"time":"2022-12-07T08:00:00Z","value":67.13169642857143},{"time":"2022-12-07T08:01:27Z","value":66.81082589285714},{"time":"2022-12-07T08:02:54Z","value":66.71549479166667},{"time":"2022-12-07T08:04:21Z","value":66.76432291666667},{"time":"2022-12-07T08:05:48Z","value":66.71875},{"time":"2022-12-07T08:07:15Z","value":68.07942708333333},{"time":"2022-12-07T08:08:42Z","value":68.7411221590909},{"time":"2022-12-07T08:11:36Z","value":48.97017070225307},{"time":"2022-12-07T08:13:03Z","value":48.72159194946289},{"time":"2022-12-07T08:14:30Z","value":49.1761360168457},{"time":"2022-12-07T08:15:57Z","value":49.35533200777494},{"time":"2022-12-07T08:17:24Z","value":49.25933401925223},{"time":"2022-12-07T08:18:51Z","value":49.23453267415365},{"time":"2022-12-07T08:20:18Z","value":48.810369682312015},{"time":"2022-12-07T08:21:45Z","value":48.50260384877523},{"time":"2022-12-07T08:23:12Z","value":48.48484802246094},{"time":"2022-12-07T08:24:39Z","value":48.371550696236746},{"time":"2022-12-07T08:26:06Z","value":48.45525550842285},{"time":"2022-12-07T08:27:33Z","value":48.270676612854004},{"time":"2022-12-07T08:29:00Z","value":47.418546464708115},{"time":"2022-12-07T08:30:27Z","value":47.1278190612793},{"time":"2022-12-07T08:31:54Z","value":47.729323323567705},{"time":"2022-12-07T08:33:21Z","value":50.479323625564575},{"time":"2022-12-07T08:34:48Z","value":49.452201570783345},{"time":"2022-12-07T08:46:24Z","value":41.8799373626709},{"time":"2022-12-07T09:08:09Z","value":40.10381262642996},{"time":"2022-12-07T09:13:57Z","value":37.646484375},{"time":"2022-12-07T09:15:24Z","value":37.646484375},{"time":"2022-12-07T09:16:51Z","value":37.704613095238095},{"time":"2022-12-07T09:18:18Z","value":36.2890625},{"time":"2022-12-07T09:19:45Z","value":36.19495738636363},{"time":"2022-12-07T09:21:12Z","value":36.83143028846154},{"time":"2022-12-07T09:22:39Z","value":33.65234375},{"time":"2022-12-07T09:24:06Z","value":31.711647727272727},{"time":"2022-12-07T09:25:33Z","value":30.13671875},{"time":"2022-12-07T09:27:00Z","value":31.359145220588236},{"time":"2022-12-07T09:28:27Z","value":33.017578125},{"time":"2022-12-07T09:29:54Z","value":33.115234375},{"time":"2022-12-07T09:31:21Z","value":33.466796875},{"time":"2022-12-07T09:32:48Z","value":33.642578125},{"time":"2022-12-07T09:34:15Z","value":31.956129807692307},{"time":"2022-12-07T09:35:42Z","value":31.770833333333332},{"time":"2022-12-07T09:37:09Z","value":31.627604166666668},{"time":"2022-12-07T09:38:36Z","value":31.9091796875},{"time":"2022-12-07T09:40:03Z","value":31.9580078125},{"time":"2022-12-07T09:41:30Z","value":32.275390625},{"time":"2022-12-07T09:42:57Z","value":32.529296875},{"time":"2022-12-07T09:44:24Z","value":32.728794642857146},{"time":"2022-12-07T09:45:51Z","value":33.056640625},{"time":"2022-12-07T09:47:18Z","value":33.22088068181818},{"time":"2022-12-07T09:48:45Z","value":33.3740234375},{"time":"2022-12-07T09:50:12Z","value":33.528645833333336},{"time":"2022-12-07T09:51:39Z","value":33.732096354166664},{"time":"2022-12-07T09:53:06Z","value":33.900669642857146},{"time":"2022-12-07T09:54:33Z","value":34.098307291666664},{"time":"2022-12-07T09:56:00Z","value":34.2529296875},{"time":"2022-12-07T09:57:27Z","value":34.407552083333336},{"time":"2022-12-07T09:58:54Z","value":34.55946180555556},{"time":"2022-12-07T10:00:21Z","value":34.58984375},{"time":"2022-12-07T10:01:48Z","value":99.560546875},{"time":"2022-12-07T10:32:15Z","value":100},{"time":"2022-12-07T10:33:42Z","value":99.853515625},{"time":"2022-12-07T10:38:03Z","value":99.1299715909091},{"time":"2022-12-07T10:39:30Z","value":99.93489583333333},{"time":"2022-12-07T10:40:57Z","value":100},{"time":"2022-12-07T10:42:24Z","value":20.16059027777778},{"time":"2022-12-07T10:43:51Z","value":30.125},{"time":"2022-12-07T10:45:18Z","value":16.399739583333332},{"time":"2022-12-07T10:46:45Z","value":17.225477430555557},{"time":"2022-12-07T10:48:12Z","value":4.58984375},{"time":"2022-12-07T10:49:39Z","value":5.46875},{"time":"2022-12-07T10:52:33Z","value":6.891741071428571},{"time":"2022-12-07T10:54:00Z","value":7.51953125},{"time":"2022-12-07T10:55:27Z","value":8.272879464285714},{"time":"2022-12-07T10:56:54Z","value":8.88671875},{"time":"2022-12-07T10:58:21Z","value":10.1318359375},{"time":"2022-12-07T10:59:48Z","value":10.76388888888889},{"time":"2022-12-07T11:01:15Z","value":11.9384765625},{"time":"2022-12-07T11:02:42Z","value":13.497488839285714},{"time":"2022-12-07T11:04:09Z","value":15.12920673076923},{"time":"2022-12-07T11:05:36Z","value":16.720145089285715},{"time":"2022-12-07T11:07:03Z","value":18.123372395833332},{"time":"2022-12-07T11:08:30Z","value":19.34481534090909},{"time":"2022-12-07T11:09:57Z","value":20.458984375},{"time":"2022-12-07T11:11:24Z","value":21.58203125},{"time":"2022-12-07T11:12:51Z","value":22.66845703125},{"time":"2022-12-07T11:14:18Z","value":23.507254464285715},{"time":"2022-12-07T11:15:45Z","value":24.348958333333332},{"time":"2022-12-07T11:17:12Z","value":25.244140625},{"time":"2022-12-07T11:18:39Z","value":26.26953125},{"time":"2022-12-07T11:20:06Z","value":27.471454326923077},{"time":"2022-12-07T11:21:33Z","value":28.564453125},{"time":"2022-12-07T11:23:00Z","value":29.28799715909091},{"time":"2022-12-07T11:24:27Z","value":30.37109375},{"time":"2022-12-07T11:25:54Z","value":31.380208333333332},{"time":"2022-12-07T11:27:21Z","value":31.794084821428573},{"time":"2022-12-07T11:28:48Z","value":31.488037109375},{"time":"2022-12-07T11:30:15Z","value":32.21768465909091},{"time":"2022-12-07T11:31:42Z","value":32.8857421875},{"time":"2022-12-07T11:33:09Z","value":32.91903409090909},{"time":"2022-12-07T11:34:36Z","value":32.70786830357143},{"time":"2022-12-07T11:36:03Z","value":32.91015625},{"time":"2022-12-07T11:37:30Z","value":33.06640625},{"time":"2022-12-07T11:38:57Z","value":32.991536458333336},{"time":"2022-12-07T11:40:24Z","value":33.170572916666664},{"time":"2022-12-07T11:41:51Z","value":33.25892857142857},{"time":"2022-12-07T11:43:18Z","value":33.2421875},{"time":"2022-12-07T11:44:45Z","value":33.072916666666664},{"time":"2022-12-07T11:54:54Z","value":33.154296875},{"time":"2022-12-07T11:56:21Z","value":33.251953125},{"time":"2022-12-07T11:57:48Z","value":33.382161458333336},{"time":"2022-12-07T11:59:15Z","value":32.861328125},{"time":"2022-12-07T12:00:42Z","value":29.15581597222222},{"time":"2022-12-07T12:02:09Z","value":28.62830528846154},{"time":"2022-12-07T12:03:36Z","value":27.34375},{"time":"2022-12-07T12:05:03Z","value":25.104166666666668},{"time":"2022-12-07T12:06:30Z","value":25.1953125},{"time":"2022-12-07T12:07:57Z","value":25.390625}]}
 
         const x_chart_1 = []
